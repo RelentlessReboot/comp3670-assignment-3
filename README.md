@@ -13,3 +13,7 @@ Q2 > Choose two 1 to many jobs, design & implement the create-assign-execute-rep
 --> Curtis Deslippe:
 
 --> Leanna Lariviere:
+
+Q3 > Create a test case for each job
+
+--> Each of us creates a test case for the job we handled in Q1 or Q2
