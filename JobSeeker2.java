@@ -1,7 +1,7 @@
 import java.net.*;
 import java.io.*;
 //job seeker waits for jobSeeker to connect, accepts job request, does job, reports back
-public class JobSeeker{ //server
+public class JobSeeker2{ //server
     public static void main(String[] args) throws UnknownHostException, IOException{
         String jobString;
         String jobIp;
@@ -32,7 +32,7 @@ public class JobSeeker{ //server
                 //get ip from creator
                 jobIp = bf.readLine();
                 System.out.println("IP: " + jobIp);
-
+               
 
                 PrintWriter pr = new PrintWriter(s.getOutputStream());
                 pr.println("RECEIVED. Job Type: " + jobString + ", var1: " + jobVar1 + ", var2: " + jobVar2);
@@ -55,8 +55,9 @@ public class JobSeeker{ //server
 
 
                     //Check if IP is online or not
-                    InetAddress addr = InetAddress.getByName(jobIp);
-                    if(addr.isReachable(5000)) {
+                    
+
+                    if(isOnline(jobIp) == true) {
                         System.out.println("IP online");
                         pr.println("This IP Address is online");
                     } else {
@@ -84,4 +85,16 @@ public class JobSeeker{ //server
                 System.out.println("Error. JobCreator disconnected.");
             }
     }
+
+    public static boolean isOnline (String jobIp)
+                    {
+                        try {
+                                InetAddress.getByName(jobIp).isReachable(5000);
+                                return true;
+                        } catch (UnknownHostException e){
+                                return false;
+                        } catch (IOException e){
+                                 return false;
+                        }
+                    }
 }
