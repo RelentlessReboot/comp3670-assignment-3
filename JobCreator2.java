@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.Scanner;
 //jobCreator creates job, connects to jobSeeker, gives job, waits for job to finish and come back.
 //create job with type, computational task    i.e multiply, 2, 5. addition,subtraction,division,multiplication
-public class JobCreator{ //client
+public class JobCreator2{ //client
     public static void main(String[] args) throws IOException{
         String jobType;
         String ip;
