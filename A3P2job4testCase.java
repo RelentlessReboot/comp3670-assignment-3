@@ -33,10 +33,11 @@ public class A3P2job2testCase{ //client test case for job 3
             System.out.println("1 = Detect if an IP address/host name is online");
             System.out.println("2 = Detect the status of a port at an IP address");
             System.out.println("3 = Execute an ICMP flood attack against a port at an IP address");
-            System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
+            System.out.println("Please use dummy IP 0.0.0.0");
             System.out.println("4 = Execute a TCP flood attack against a port at an IP address");
             System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
-            jobType = "3";//job for this test case is job 3
+            System.out.println("Please use dummy IP 0.0.0.0");
+            jobType = "4";//job for this test case is job 4
             pr.println(jobType);
             pr.flush();
 

@@ -31,9 +31,11 @@ public class A3JobCreator{ //client
         //job 3 = A3 Q2 Job 1
         System.out.println("3 = Execute an ICMP flood attack against a port at an IP address");
         System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
+        System.out.println("Please use dummy IP 0.0.0.0");
         //job 4 = A3 Q2 Job 2
         System.out.println("4 = Execute a TCP flood attack against a port at an IP address");
         System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
+        System.out.println("Please use dummy IP 0.0.0.0");
         jobType = sc.nextLine();
         pr.println(jobType);
         pr.flush();
