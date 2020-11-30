@@ -5,7 +5,7 @@ import java.util.Scanner;
 //create job with type, computational task    i.e multiply, 2, 5. addition,subtraction,division,multiplication
 public class JobCreator2{ //client
     public static void main(String[] args) throws IOException{
-        int jobType;
+        String jobType;
         String ip;
         String port;
         boolean isJobDone = false;
@@ -31,9 +31,7 @@ public class JobCreator2{ //client
         pr.println(ip);
         pr.flush();
         //get port from user
-        if (jobType == 1) {
-            port = "Not Applicable";
-        } else {
+        if (!jobType.equalsIgnoreCase("1")){
             System.out.println("Enter a port number:");
             port = sc3.nextLine();
             pr.println(port);
