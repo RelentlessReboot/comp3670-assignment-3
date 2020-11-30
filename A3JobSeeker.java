@@ -1,7 +1,7 @@
 import java.net.*;
 import java.io.*;
 //job seeker waits for jobSeeker to connect, accepts job request, does job, reports back
-public class JobSeeker2{ //server
+public class A3JobSeeker{ //server
     public static void main(String[] args) throws IOException{
         String jobString;
         String jobIp;

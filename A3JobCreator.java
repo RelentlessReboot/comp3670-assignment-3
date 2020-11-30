@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.Scanner;
 //jobCreator creates job, connects to JobSeeker, assigns job, and receives the executed job report from JobSeeker.
 //create job with type 1 (A3P2Q1 Job 1), 2 (A3P2Q1 Job 2), 3 (A3P2Q2 Job 2), or 4 (A3P2Q2 Job 3)
-public class JobCreator2{ //client
+public class A3JobCreator{ //client
     public static void main(String[] args) throws IOException{
         String jobType;
         String ip;

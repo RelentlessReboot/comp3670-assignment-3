@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <dependencies>
         <dependency>
-            <groupId>groupId</groupId>
+            <groupId>comp3670group11</groupId>
             <artifactId>comp3670-assignment-3</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
