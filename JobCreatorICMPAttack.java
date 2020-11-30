@@ -14,7 +14,8 @@ public class JobCreatorICMPAttack{ //client
         Scanner sc = new Scanner(System.in);
         System.out.println("enter the target IP Address");
         targetIP = sc.nextLine();
-        while (true) { // connect to JobSeekerICMPAttack, give IP, repeat
+        while (true) { // connect to JobSeekerICMPAttack, give IP, repeat. currently only 1 server. this should
+                       // repeat for each jobSeeker server
             try { //connected to JobSeeker
                 Socket s = new Socket("localhost", 4999);
                 PrintWriter pr = new PrintWriter(s.getOutputStream());
