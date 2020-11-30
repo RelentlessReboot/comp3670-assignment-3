@@ -1,8 +1,8 @@
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
-//jobCreator creates job, connects to jobSeeker, gives job, waits for job to finish and come back.
-//create job with type, computational task    i.e multiply, 2, 5. addition,subtraction,division,multiplication
+//jobCreator creates job, connects to JobSeeker, assigns job, and receives the executed job report from JobSeeker.
+//create job with type 1 (A3P2Q1 Job 1), 2 (A3P2Q1 Job 2), 3 (A3P2Q2 Job 2), or 4 (A3P2Q2 Job 3)
 public class JobCreator2{ //client
     public static void main(String[] args) throws IOException{
         String jobType;
@@ -18,9 +18,13 @@ public class JobCreator2{ //client
         Scanner sc3 = new Scanner(System.in);
         //get job from user. one of the 4 types
         System.out.println("Enter job type:");
+        //job 1 = A3 Q1 Job 1
         System.out.println("1 = Detect if an IP address/host name is online");
+        //job 2 = A3 Q1 Job 2
         System.out.println("2 = Detect the status of a port at an IP address");
+        //job 3 = A3 Q2 Job 2
         System.out.println("3 = Execute a TCP flood attack against a port at an IP address");
+        //job 4 = A3 Q2 Job 3
         System.out.println("4 = Execute a UDP flood attack against a port at an IP address");
         jobType = sc.nextLine();
         pr.println(jobType);
@@ -30,7 +34,7 @@ public class JobCreator2{ //client
         ip = sc2.nextLine();
         pr.println(ip);
         pr.flush();
-        //get port from user
+        //If job type is not Job 1, get port number from user
         if (!jobType.equalsIgnoreCase("1")){
             System.out.println("Enter a port number:");
             port = sc3.nextLine();
@@ -50,8 +54,7 @@ public class JobCreator2{ //client
         str = bf.readLine();
         System.out.println(str);
 
-        int jobDoneNum = 0;
-        jobDoneNum = bf.read();
+        int jobDoneNum = bf.read();
         if (jobDoneNum == 1)
             isJobDone = true;
         }catch(IOException e){
