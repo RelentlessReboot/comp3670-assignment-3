@@ -52,9 +52,10 @@ public class JobSeeker2{ //server
                         pr.flush();
                     } else {
                         //do the job based on job type
+                        //assign part of create-assign-execute-report process for each job
                         switch (jobString) {
                             case "1":
-                                //code for first job, Q1 Job 1
+                                //assign 1st job to JobSeeker, Q1 Job 1
                                 if (isOnline(jobIp)) {
                                     System.out.println("IP online");
                                     pr.println("This IP Address/hostname is online.");
@@ -66,19 +67,38 @@ public class JobSeeker2{ //server
                                 }
                                 break;
                             case "2":
-                                //code for 2nd job, Q1 Job 2
-                                secondJob(jobIp, jobPort);
+                                //assign 2nd job to JobSeeker, Q1 Job 2
+                                //detect status of port jobPort at IP address jobIP
+                                String pstat = portStatus(jobIp, jobPort);
+                                //report part of create-assign-execute-report process for A3P2Q1 Job 2
+                                if(pstat.equalsIgnoreCase("open")){
+                                    System.out.println("Port Open");
+                                    pr.println("Port " + jobPort + " at IP address " + jobIp + " is open.");
+                                    pr.flush();
+                                } else if (pstat.equalsIgnoreCase("closed")){
+                                    System.out.println("Port Closed");
+                                    pr.println("Port " + jobPort + " at IP address " + jobIp + " is closed.");
+                                    pr.flush();
+                                } else if(pstat.equalsIgnoreCase("filtered")){
+                                    System.out.println("Port Filtered");
+                                    pr.println("Port " + jobPort + " at IP address " + jobIp + " is filtered.");
+                                    pr.flush();
+                                } else {
+                                    System.out.println("Status Unknown");
+                                    pr.println("The status of port " + jobPort + " at IP address " + jobIp + " is unknown.");
+                                    pr.flush();
+                                }
                                 break;
                             case "3":
-                                //code for 3rd job, Q2 Job 2
+                                //assign 3rd job to JobSeeker, Q2 Job 2
                                 thirdJob(jobIp, jobPort);
                                 break;
                             case "4":
-                                //code for 4th job, Q2 Job 3
+                                //assign 4th job to JobSeeker, Q2 Job 3
                                 fourthJob(jobIp, jobPort);
                                 break;
                             default:
-                                pr.println("Error. Job not executed.");
+                                pr.println("Error. Job not assigned.");
                                 pr.flush();
                                 break;
                         }
@@ -97,23 +117,54 @@ public class JobSeeker2{ //server
                 System.out.println("Error. JobCreator disconnected.");
             }
     }
-    //check if given IP address is online or not
-    public static boolean isOnline(String jobIp) {
+    //job 1 = check if given IP address is online or not
+    //execute part of create-assign-execute-report process for A3P2Q1 Job 1
+    public static boolean isOnline(String jobIp) throws IOException {
+        return InetAddress.getByName(jobIp).isReachable(5000);
+    }
+    //job 2 = check status of given port number at given IP address
+    //execute part of create-assign-execute-report process for A3P2Q1 Job 2
+    public static String portStatus(String jobIp, String jobPort) {
+        int port = Integer.parseInt(jobPort);
+        Socket sckt = null;//create socket variable
+        String status = "unknown";
         try {
-            return InetAddress.getByName(jobIp).isReachable(5000);
-        } catch (IOException e){
-            return false;
+            //connection to port at host established, new socket
+            sckt = new Socket(jobIp, port);
+        } catch (IOException e) {
+            if(e.getMessage().equals("Connection refused")){
+                //returns port status as closed
+                status = "closed";
+            }
+            if(e instanceof SocketTimeoutException){
+                //connection timed out, port blocked by firewall
+                //returns port status as filtered
+                status = "filtered";
+            }
+        } finally {
+            //checks if port is not filtered
+            if (sckt != null) {
+                //returns port status as open
+                if (sckt.isConnected()){
+                    status = "open";
+                }
+                try {
+                    //closes connection
+                    sckt.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        return status;
     }
-    //code to do second job
-    public static void secondJob(String jobIp, String jobPort) {
-        
-    }
-    //code to do third job
+    //job 3 = code to do third job
+    //execute part of create-assign-execute-report process for A3P2Q2 Job 2
     public static void thirdJob(String jobIp, String jobPort) {
         
     }
-    //code to do fourth job
+    //job 4 = code to do fourth job
+    //execute part of create-assign-execute-report process for A3P2Q2 Job 3
     public static void fourthJob(String jobIp, String jobPort) {
         
     }
