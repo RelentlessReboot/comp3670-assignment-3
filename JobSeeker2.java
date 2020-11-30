@@ -2,15 +2,14 @@ import java.net.*;
 import java.io.*;
 //job seeker waits for jobSeeker to connect, accepts job request, does job, reports back
 public class JobSeeker2{ //server
-    public static void main(String[] args) throws UnknownHostException, IOException{
+    public static void main(String[] args) throws IOException{
         String jobString;
         String jobIp;
         String jobPort;
         boolean badJob = false;
         boolean jobDone = false;
-        double sum = 0;
         ServerSocket ss = new ServerSocket(4999);
-        Socket s = new Socket();
+        Socket s;
             try {
                 s = ss.accept();
                 //server can only connect to one client at a time
@@ -21,56 +20,76 @@ public class JobSeeker2{ //server
                 //get the job type from the creator
                 jobString = bf.readLine();
                 System.out.println("jobCreator: " + jobString);
-                /*
-                //get the 2 variables from creator
-                jobVar1 = Integer.parseInt(bf.readLine());
-                jobVar2 = Integer.parseInt(bf.readLine());
-                System.out.println("var1: " + jobVar1);
-                System.out.println("var2: " + jobVar2);
-                */
-                //get ip from creator
+                //get IP address from JobCreator
                 jobIp = bf.readLine();
                 System.out.println("IP: " + jobIp);
-               
-                //get port number from creator
+
+                //get port number from JobCreator
                 jobPort = bf.readLine();
                 System.out.println("Port: " + jobPort);
 
-                PrintWriter pr = new PrintWriter(s.getOutputStream());
-                pr.println("RECEIVED. Job Type: " + jobString + "/n" + "IP: " + jobIp + ", Port: " + jobPort);
-                pr.flush();
-                //do the job based on job type
-                switch (jobString) {
-                    case "1":
-                        firstJob(jobIp);
-                        break;
-                    case "2":
-                        secondJob(jobIp, jobPort);
-                        break;
-                    case "3":
-                        thirdJob(jobIp, jobPort);
-                        break;
-                    case "4":
-                        fourthJob(jobIp, jobPort);
-                        break;
-                    default:
-                        pr.println("Error. Job not executed.");
+                try (PrintWriter pr = new PrintWriter(s.getOutputStream())) {
+                    pr.println("RECEIVED. Job Type: " + jobString + "/n" + "IP: " + jobIp + ", Port: " + jobPort);
+                    pr.flush();
+                    //determine if job type is valid
+                    switch (jobString) {
+                        case "1":
+                        case "2":
+                        case "3":
+                        case "4":
+                            break;
+                        default:
+                            badJob = true;
+                            pr.println("Error. Invalid job type.");
+                            pr.flush();
+                            break;
+                    }
+                    if (badJob) {
+                        System.out.println("Job incomplete. Error.");
+                        pr.println("Error. Unknown job type.");
                         pr.flush();
-                        break;
-                }
-                if (badJob == false) {
-                    System.out.println("Job finished.");
-                    pr.println("Job Complete.");
-                    pr.flush();
-                    jobDone = true;
-                    pr.println(1);
-                    pr.flush();
-                } else {
-                    System.out.println("Job incomplete. Error.");
-                    pr.println("Error. Unknown job type.");
-                    pr.flush();
-                    pr.println(0);
-                    pr.flush();
+                        pr.println(0);
+                        pr.flush();
+                    } else {
+                        //do the job based on job type
+                        switch (jobString) {
+                            case "1":
+                                //code for first job, Q1 Job 1
+                                if (isOnline(jobIp)) {
+                                    System.out.println("IP online");
+                                    pr.println("This IP Address/hostname is online.");
+                                    pr.flush();
+                                } else {
+                                    System.out.println("IP offline");
+                                    pr.println("This IP Address/hostname is offline.");
+                                    pr.flush();
+                                }
+                                break;
+                            case "2":
+                                //code for 2nd job, Q1 Job 2
+                                secondJob(jobIp, jobPort);
+                                break;
+                            case "3":
+                                //code for 3rd job, Q2 Job 2
+                                thirdJob(jobIp, jobPort);
+                                break;
+                            case "4":
+                                //code for 4th job, Q2 Job 3
+                                fourthJob(jobIp, jobPort);
+                                break;
+                            default:
+                                pr.println("Error. Job not executed.");
+                                pr.flush();
+                                break;
+                        }
+
+                        System.out.println("Job finished.");
+                        pr.println("Job Complete.");
+                        pr.flush();
+                        jobDone = true;
+                        pr.println(1);
+                        pr.flush();
+                    }
                 }
                 //end socket for this job.
                 s.close();
@@ -78,25 +97,10 @@ public class JobSeeker2{ //server
                 System.out.println("Error. JobCreator disconnected.");
             }
     }
-    //code to do first job
-    public static void firstJob(String jobIp) {
-        if(isOnline(jobIp) == true) {
-            System.out.println("IP online");
-            pr.println("This IP Address is online");
-            pr.flush();
-        } else {
-            System.out.println("IP offline");
-            pr.println("This IP Address is offline");
-            pr.flush();
-        }
-    }
-
+    //check if given IP address is online or not
     public static boolean isOnline(String jobIp) {
         try {
-            InetAddress.getByName(jobIp).isReachable(5000);
-            return true;
-        } catch (UnknownHostException e){
-            return false;
+            return InetAddress.getByName(jobIp).isReachable(5000);
         } catch (IOException e){
             return false;
         }
