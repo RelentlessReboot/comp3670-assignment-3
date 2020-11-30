@@ -57,24 +57,7 @@ public class JobSeekerICMPAttack{ //server
             e.printStackTrace();
         }
 
-        //get machine address
         InetAddress localHost = InetAddress.getLocalHost();
-        NetworkInterface ni = NetworkInterface.getByInetAddress(localHost);
-        byte[] hardwareAddress = ni.getHardwareAddress();
-        /*
-        //get target machine address
-        InetAddress targetHost = InetAddress.getByName(targetIP);
-        NetworkInterface tni = NetworkInterface.getByInetAddress(targetHost);
-        byte[] thardwareAddress = tni.getHardwareAddress();
-
-        EthernetPacket.Builder etherBuilder = new EthernetPacket.Builder();
-        etherBuilder
-                .srcAddr(MacAddress.getByAddress(hardwareAddress))
-                .dstAddr(MacAddress.getByAddress(thardwareAddress))
-                .type(EtherType.IPV4)
-                .payloadBuilder(ipv4Builder)
-                .paddingAtBuild(true);
-        */
         Packet p = ipv4Builder.build();
         //create handle
         PcapNetworkInterface nif = Pcaps.getDevByAddress(localHost);
