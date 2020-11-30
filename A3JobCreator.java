@@ -1,10 +1,16 @@
+
+import org.pcap4j.packet.IllegalRawDataException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
 //jobCreator creates job, connects to JobSeeker, assigns job, and receives the executed job report from JobSeeker.
-//create job with type 1 (A3P2Q1 Job 1), 2 (A3P2Q1 Job 2), 3 (A3P2Q2 Job 2), or 4 (A3P2Q2 Job 3)
+//create job with type 1 (A3P2Q1 Job 1), 2 (A3P2Q1 Job 2), 3 (A3P2Q2 Job 1), or 4 (A3P2Q2 Job 2)
 public class A3JobCreator{ //client
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, IllegalRawDataException {
         String jobType;
         String ip;
         String port;
@@ -22,10 +28,12 @@ public class A3JobCreator{ //client
         System.out.println("1 = Detect if an IP address/host name is online");
         //job 2 = A3 Q1 Job 2
         System.out.println("2 = Detect the status of a port at an IP address");
-        //job 3 = A3 Q2 Job 2
-        System.out.println("3 = Execute a TCP flood attack against a port at an IP address");
-        //job 4 = A3 Q2 Job 3
-        System.out.println("4 = Execute a UDP flood attack against a port at an IP address");
+        //job 3 = A3 Q2 Job 1
+        System.out.println("3 = Execute an ICMP flood attack against a port at an IP address");
+        System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
+        //job 4 = A3 Q2 Job 2
+        System.out.println("4 = Execute a TCP flood attack against a port at an IP address");
+        System.out.println("Warning: Doing this against a valid IP address may count as an illegal DDoS attack");
         jobType = sc.nextLine();
         pr.println(jobType);
         pr.flush();
