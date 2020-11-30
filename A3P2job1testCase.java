@@ -1,8 +1,17 @@
+
+import org.pcap4j.packet.IllegalRawDataException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.*;
 import java.io.*;
 import java.util.Scanner;
-//creates job, connects to JobSeeker, assigns job, and receives the executed job report from JobSeeker.
 //A3P2Q3, test case for job 1 (A3P2Q1 Job 1)
+/* Coded by Curtis Deslippe, Yuvi Nanuan and Dariq Ahmed
+ * Edited by Dariq Ahmed
+ */
+//creates job, connects to JobSeeker, assigns job, and receives the executed job report from JobSeeker.
 public class A3P2job1testCase{ //client test case for job 1
     public static void main(String[] args) throws IOException{
         String jobType;
